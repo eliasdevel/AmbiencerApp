@@ -6,8 +6,8 @@ import 'package:testing/widgets/characteristicTile.dart';
 import 'package:testing/widgets/descriptorTile.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
-class DeviceScreen extends StatelessWidget {
-  const DeviceScreen({Key key, this.device}) : super(key: key);
+class DeviceScreen extends StatelessWidget  {
+  const DeviceScreen({Key key, this.device})  : super(key: key);
 
   final BluetoothDevice device;
 
@@ -23,25 +23,29 @@ class DeviceScreen extends StatelessWidget {
 //        i++;
 //      });
 //    }
-    if (services.length > 0) {
-      services.removeAt(0);
-    }
+
 //    if(services.length >1) {
 //      services.removeAt(0);
 //      services.removeAt(1);
 //    }
-    return services
+
+    return
+
+      services
         .map(
           (s) => ServiceTile(
             service: s,
             characteristicTiles: s.characteristics
+
                 .map(
+                  
                   (c) => CharacteristicTile(
+
                     characteristic: c,
                     onReadPressed: () => c.read(),
                     onWritePressed: () => c.write([69, 69]),
                     onNotificationPressed: () =>
-                        c.setNotifyValue(!c.isNotifying),
+                        c.setNotifyValue(true),
                     descriptorTiles: c.descriptors
                         .map(
                           (d) => DescriptorTile(
@@ -52,15 +56,22 @@ class DeviceScreen extends StatelessWidget {
                         )
                         .toList(),
                   ),
+
                 )
+//                Filtra Somente A característica 3
+//                .where((s) => s.characteristic.uuid.toString().toUpperCase().substring(4, 8) == '0003')
                 .toList(),
           ),
         )
+        //Filtra Somente o Serviço 1
+        .where((s) => s.service.uuid.toString().toUpperCase().substring(4, 8) == '0001')
+
         .toList();
   }
 
   @override
   Widget build(BuildContext context) {
+
     device.discoverServices();
     return Scaffold(
       appBar: AppBar(
@@ -109,11 +120,11 @@ class DeviceScreen extends StatelessWidget {
                   color: Colors.blue,
                   textColor: Colors.white,
                   child: Text('Histórico de Temperaturas'),
-                  //TODO página de histórico
+
                   onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
                           builder: (context) =>
-                              HistoricScreen())),
+                              HistoricScreen('${device.id}'))),
 
                 )
               ],
@@ -124,7 +135,7 @@ class DeviceScreen extends StatelessWidget {
                   color: Colors.blue,
                   textColor: Colors.white,
                   child: Text('Configuração'),
-                  //TODO página de histórico
+
                   onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
                           builder: (context) =>

@@ -14,13 +14,13 @@ class ConfigurationScreen extends StatelessWidget {
     final formKey = new GlobalKey<FormState>();
 
     return Scaffold(
+      resizeToAvoidBottomPadding: false,
       appBar: AppBar(
         title: Text('Configuração Do dispositivo'),
       ),
-      body:  ConfigurationForm(this.deviceId),
-
-
-
+      body: SingleChildScrollView(
+       child:  ConfigurationForm(this.deviceId),
+      )
     );
   }
 

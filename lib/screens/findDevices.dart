@@ -32,6 +32,7 @@ class FindDevicesScreen extends StatelessWidget {
                       builder: (c, snapshot) {
                         if (snapshot.data ==
                             BluetoothDeviceState.connected) {
+
                           return RaisedButton(
                             child: Text('Abrir'),
                             onPressed: () => Navigator.of(context).push(

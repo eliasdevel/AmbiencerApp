@@ -2,9 +2,9 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:testing/dataModels/temperatureConfiguration.dart';
+import 'package:testing/dataModels/configDevice.dart';
 import 'package:testing/dataModels/temperatureHistoric.dart';
-import 'package:testing/sqliteHelpers/temperatureDatabase.dart';
+import 'package:testing/sqliteHelpers/configDeviceDAO.dart';
 
 class ConfigurationForm extends StatefulWidget {
   String deviceId;
@@ -13,6 +13,7 @@ class ConfigurationForm extends StatefulWidget {
 
   @override
   ConfigurationFormState createState() {
+    final db =  ConfigDeviceDAO();
     return ConfigurationFormState(this.deviceId);
   }
 }
@@ -25,24 +26,44 @@ class ConfigurationFormState extends State<ConfigurationForm> {
   //
   // Note: This is a `GlobalKey<FormState>`,
   // not a GlobalKey<MyCustomFormState>.
-  List<TemperatureHistoric> historics = [];
-  var db =  TemperatureDatabase();
-
-
   final _formKey = GlobalKey<FormState>();
+
+
   String deviceId;
-  num temperature;
-  num oscilation;
+  final db =  ConfigDeviceDAO();
+  final temperatureController = TextEditingController();
+  final oscilationController = TextEditingController();
+
+
+  ConfigDevice cd;
 //  String dateTime = DateTime.now() as String;
-  String _deviceMode = 'COOL';
+  String mode = 'HEAT';
   ConfigurationFormState(this.deviceId);
 
-  updateConfig(){
-    db.updateTemperatureConfiguration(TemperatureConfiguration(1,deviceId,temperature,_deviceMode));
-     List<TemperatureConfiguration> ls = db.fetchTemperatureConfiguration(1) as List<TemperatureConfiguration>;
+
+  void updateConfig() async {
+//    cdl = db.configDevices() ;
+    if(cd.id == 'default'){
+      db.defaultInsert('configDevices', new ConfigDevice(deviceId: deviceId,temperature: num.parse(temperatureController.text ),oscilation: num.parse(oscilationController.text ),mode: mode));
+    }else{
+
+      db.defaultUpdate('configDevices', new ConfigDevice(id: cd.id, deviceId: deviceId,temperature: num.parse(temperatureController.text ),oscilation: num.parse(oscilationController.text ),mode: mode));
+    }
+
+   print(await db.getDevice(deviceId)) ;
   }
+
+  void setDevice() async{
+    cd = await db.getDevice(deviceId);
+    temperatureController.text = '${cd.temperature}';
+    oscilationController.text = '${cd.oscilation}';
+    mode = cd.mode;
+//    print(cd);
+  }
+
   @override
   Widget build(BuildContext context) {
+    setDevice();
     // Build a Form widget using the _formKey created above.
     return Form(
       key: _formKey,
@@ -52,11 +73,11 @@ class ConfigurationFormState extends State<ConfigurationForm> {
 //          Text(),
           Text(this.deviceId),
           TextFormField(
+
             decoration: InputDecoration(labelText: 'Temperatura:'),
             keyboardType: TextInputType.number,
-            onChanged: (text) {
-              temperature = text as num;
-            } ,
+
+            controller: temperatureController,
 //            validator: (value) {
 //              if (value.isEmpty) {
 //                return 'Coloque algum valor';
@@ -67,9 +88,7 @@ class ConfigurationFormState extends State<ConfigurationForm> {
           TextFormField(
             decoration: InputDecoration(labelText: 'Oscilação:'),
             keyboardType: TextInputType.number,
-            onChanged: (text) {
-              oscilation = text as num;
-            } ,
+            controller: oscilationController ,
 //            validator: (value) {
 //              if (value.isEmpty) {
 //                return 'Coloque algum valor';
@@ -78,34 +97,36 @@ class ConfigurationFormState extends State<ConfigurationForm> {
 //            },
           ),
 
-//              RadioListTile<String>(
-//                title: const Text('Resfriar'),
-//                value: 'COOL',
-//                groupValue: _deviceMode,
-//                onChanged: (value) {
-//                  setState(() {
-//                    _deviceMode = value;
-//                  });
-//                },
-//              ),
-//              RadioListTile<String>(
-//                title: const Text('Aquecer'),
-//                value: 'HEAT',
-//                groupValue: _deviceMode,
-//                onChanged: (value) {
-//                  setState(() {
-//                    _deviceMode = value;
-//                  });
-//                },
-//              ),
+          DropdownButton<String>(
+            items: [
+              DropdownMenuItem<String>(
+                child: Text('Aquecer'),
+                value: 'HEAT',
+              ),
+              DropdownMenuItem<String>(
+                child: Text('Esfriar'),
+                value: 'COOL',
+              ),
+            ],
+            onChanged: (String value) {
+              setState(() {
+                print(value);
+                mode = value;
+                updateConfig();
+              });
+            },
+            hint: Text('Select Item'),
+            value: mode,
+          ),
 
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: RaisedButton(
-              onPressed: () { updateConfig();
+              onPressed: () {
                 // Validate returns true if the form is valid, or false
                 // otherwise.
                 if (_formKey.currentState.validate()) {
+                  updateConfig();
                   // If the form is valid, display a Snackbar.
                   Scaffold.of(context)
                       .showSnackBar(SnackBar(content: Text('Processing Data')));

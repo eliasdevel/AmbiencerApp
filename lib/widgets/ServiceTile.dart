@@ -18,8 +18,8 @@ class ServiceTile extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text('Service'),
-            Text('0x${service.uuid.toString().toUpperCase().substring(4, 8)}',
+            Text('Sensor'),
+            Text('Nr: ${service.uuid.toString().toUpperCase().substring(4, 8)}',
                 style: Theme.of(context)
                     .textTheme
                     .body1

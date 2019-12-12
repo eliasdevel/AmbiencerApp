@@ -83,6 +83,7 @@ class ScanResultTile extends StatelessWidget {
       print("Não encontrou dados");
       return null;
     }
+    print(data);
     List<String> res = [];
     data.forEach((id, bytes) {
       res.add('${id.toUpperCase()}: ${getNiceHexArray(bytes)}');
